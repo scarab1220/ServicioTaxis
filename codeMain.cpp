@@ -36,7 +36,55 @@ int viajesTotales = 0;
 int viajesEjecutivo = 0;
 int viajesTradicional = 0;
 
+struct Cola {
+    int indices[MAX_TAXIS]; // Guarda los índices al array de taxis
+    int tam; // Tamaño actual de la cola
+};
+
+Cola colaEsperaEjectivo;
+Cola colaEsperaTradicional;
+Cola colaRutaEjecutivo;
+Cola colaRutaTradicional;
+
+// Funciones basicas de cola
+
+void inicializarCola(Cola &cola) {
+    cola.tam = 0;
+}
+
+bool colaVacia(const Cola &cola) {
+    return cola.tam == 0;
+}
+
+bool colaLlena(const Cola &cola) {
+    return cola.tam == MAX_TAXIS;
+}
+
+bool encolar(Cola &cola, int indiceTaxi) {
+    if (colaLlena(cola)) 
+        return false; // Cola llena
+    cola.indices[cola.tam++] = indiceTaxi;
+    cola.tam++;
+    return true;
+}
+
+bool desencolar(Cola &cola) {
+    if (colaVacia(cola)) return -1; // Cola vacía
+    int primero = cola.indices[0];
+    // se mueven una posicion a la izquierda
+    for (int i = 1; i < cola.tam; i++) {
+        cola.indices[i - 1] = cola.indices[i];
+    }
+    cola.tam--;
+    return primero;
+}
+
 int main() {
+    inicializarCola(colaEsperaEjectivo);
+    inicializarCola(colaEsperaTradicional);
+    inicializarCola(colaRutaEjecutivo);
+    inicializarCola(colaRutaTradicional);
+    
     cout << "Sistema de Gestion de Taxis Iniciado" << endl;
     return 0;
 }
