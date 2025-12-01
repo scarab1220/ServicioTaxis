@@ -3,6 +3,8 @@
 
 using namespace std;
 
+// Definiciones y estructuras
+
 const int MAX_TAXIS = 100; // Se puede ajustar según sea necesario
 
 struct Conductor {
@@ -79,7 +81,7 @@ bool desencolar(Cola &cola) {
     return primero;
 }
 
-//Declaracion de funciones adicionales
+//Funciones del menu principal
 
 void mostrarMenu();
 void opcionAgregarTaxi();
@@ -127,7 +129,39 @@ int main() {
 
     return 0;
 
+void mostrarMenu() {
+    cout << "\n--- Sistema de Gestion TRUE DRIVE ---" << endl;
+    cout << "1. Agregar Taxi" << endl;
+    cout << "2. Ver Datos de Taxis" << endl;
+    cout << "3. Verificar Taxis en Ruta" << endl;
+    cout << "4. Reinsertar Taxi en Cola de Espera" << endl;
+    cout << "5. Ver Reportes" << endl;
+    cout << "6. Salir" << endl;
+    cout << "Seleccione una opcion: " << endl;
 
 }
+
+// Implementacion de funciones adicionales
+
+void opcionAgregarTaxi() {
+    cout << "Funcion para agregar taxi (pendiente de implementacion)." << endl;
+}
+
+void opcionVerDatos() {
+    cout << "Funcion para ver datos de taxis (pendiente de implementacion)." << endl;
+}
+
+void opcionVerificarTaxisEnRuta() {
+    cout << "Funcion para verificar taxis en ruta (pendiente de implementacion)." << endl;
+}
+
+void opcionReinsertarTaxiEnCola() {
+    cout << "Funcion para reinsertar taxi en cola de espera (pendiente de implementacion)." << endl;
+}
+
+void opcionVerReportes() {
+    cout << "Funcion para ver reportes (pendiente de implementacion)." << endl;
+}
+
 
 // Fin del archivo codeMain.cpp
