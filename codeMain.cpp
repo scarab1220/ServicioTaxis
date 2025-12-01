@@ -79,14 +79,55 @@ bool desencolar(Cola &cola) {
     return primero;
 }
 
+//Declaracion de funciones adicionales
+
+void mostrarMenu();
+void opcionAgregarTaxi();
+void opcionVerDatos();
+void opcionVerificarTaxisEnRuta();
+void opcionReinsertarTaxiEnCola();
+void opcionVerReportes();
+
 int main() {
     inicializarCola(colaEsperaEjectivo);
     inicializarCola(colaEsperaTradicional);
     inicializarCola(colaRutaEjecutivo);
     inicializarCola(colaRutaTradicional);
     
-    cout << "Sistema de Gestion de Taxis Iniciado" << endl;
+    char opcion;
+
+    do {
+        mostrarMenu();
+        cin >> opcion;
+        cin.ignore(); // Limpiar el buffer de entrada
+
+        switch (opcion) {
+            case '1':
+                opcionAgregarTaxi();
+                break;
+            case '2':
+                opcionVerDatos();
+                break;
+            case '3':
+                opcionVerificarTaxisEnRuta();
+                break;
+            case '4':
+                opcionReinsertarTaxiEnCola();
+                break;
+            case '5':
+                opcionVerReportes();
+                break;
+            case '6':
+                cout << "Saliendo del sistema..." << endl;
+                break;
+            default:
+                cout << "Opcion invalida. Por favor intente de nuevo." << endl;
+        }
+    } while (opcion != '6');
+
     return 0;
+
+
 }
 
 // Fin del archivo codeMain.cpp
