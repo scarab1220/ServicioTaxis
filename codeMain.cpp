@@ -6,7 +6,7 @@ using namespace std;
 
 // Definiciones y estructuras
 
-const int MAX_TAXIS = 100; // Se puede ajustar según sea necesario
+const int MAX_TAXIS = 100; // Se puede ajustar segun sea necesario
 
 struct Conductor {
     string nombre;
@@ -32,7 +32,7 @@ int totalTaxis = 0;
 // variables para reportar
 
 double ingresosTotales = 0.0;
-double ingresosEjecutivo = 0.0;
+double ingresosEjecutivo = 0.0;    // se muestra como "Ejecutiva"
 double ingresosTradicional = 0.0;
 
 int viajesTotales = 0;
@@ -40,8 +40,8 @@ int viajesEjecutivo = 0;
 int viajesTradicional = 0;
 
 struct Cola {
-    int indices[MAX_TAXIS]; // Guarda los índices al array de taxis
-    int tam; // Tamaño actual de la cola
+    int indices[MAX_TAXIS]; // Guarda los indices al array de taxis
+    int tam;                // Tamano actual de la cola
 };
 
 Cola colaEsperaEjecutivo;
@@ -71,24 +71,8 @@ bool encolar(Cola &cola, int indiceTaxi) {
     return true;
 }
 
-bool taxiEstaEnCola(const Cola &cola, int indiceTaxi) {
-    for (int i = 0; i < cola.tam; ++i) {
-        if (cola.indices[i] == indiceTaxi) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool taxiEstaEnRuta(int indiceTaxi) {
-    return taxiEstaEnCola(colaRutaEjecutivo, indiceTaxi)
-        || taxiEstaEnCola(colaRutaTradicional, indiceTaxi);
-}
-
-
-
 int desencolar(Cola &cola) {
-    if (colaVacia(cola)) return -1; // Cola vacía
+    if (colaVacia(cola)) return -1; // Cola vacia
     int primero = cola.indices[0];
     // se mueven una posicion a la izquierda
     for (int i = 1; i < cola.tam; i++) {
@@ -107,6 +91,12 @@ void opcionEnviarTaxiCliente();
 void opcionVerTaxisEnRuta();
 void opcionReinsertarTaxiEnCola();
 void opcionVerReportes();
+
+// Helpers de reportes
+void mostrarMenuReportes();
+void reporteTotalIngresos();
+void reporteIngresosPorCategoria();
+void reporteViajesPorCategoria();
 
 // Funciones para verificar duplicados
 
@@ -137,6 +127,15 @@ bool documentoDuplicado(const string &documentoIdentidad) {
     return false;
 }
 
+bool seguroSocialDuplicado(const string &numeroSeguroSocial) {
+    for (int i = 0; i < totalTaxis; i++) {
+        if (taxis[i].conductor.numeroSeguroSocial == numeroSeguroSocial) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Funciones para leer datos con validacion
 
 string leerDatoUnico(const string &etiqueta, bool (*duplicado)(const string &)) {
@@ -155,7 +154,7 @@ string leerDatoUnico(const string &etiqueta, bool (*duplicado)(const string &)) 
 int leerAnoValido() {
     int anio;
     while (true) {
-        cout << "Año del Taxi (e.g., 2015): ";
+        cout << "Año del True drive (ejemplo 2015): ";
         if (!(cin >> anio)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -173,7 +172,7 @@ int leerAnoValido() {
 
 string determinarCategoria(int anio) {
     if (anio >= 2015) {
-        return "Ejecutivo";
+        return "Ejecutiva";
     } else {
         return "Tradicional";
     }
@@ -181,7 +180,7 @@ string determinarCategoria(int anio) {
 
 string leerCategoriaCliente() {
     while (true) {
-        cout << "Categoria requerida (E = Ejecutivo, T = Tradicional): ";
+        cout << "Categoria requerida (E = Ejecutiva, T = Tradicional): ";
         char c;
         if (!(cin >> c)) {
             cin.clear();
@@ -191,7 +190,7 @@ string leerCategoriaCliente() {
         }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        if (c == 'E' || c == 'e') return "Ejecutivo";
+        if (c == 'E' || c == 'e') return "Ejecutiva";
         if (c == 'T' || c == 't') return "Tradicional";
 
         cout << "Opcion invalida. Intente nuevamente." << endl;
@@ -206,38 +205,53 @@ Conductor leerDatosConductor() {
     cout << "Apellido: ";
     getline(cin, conductor.apellido);
     conductor.documentoIdentidad = leerDatoUnico("Documento de Identidad", documentoDuplicado);
-    cout << "Numero de Seguro Social: ";
-    getline(cin, conductor.numeroSeguroSocial);
+    conductor.numeroSeguroSocial = leerDatoUnico("Numero de Seguro Social", seguroSocialDuplicado);
     cout << "Telefono: ";
     getline(cin, conductor.telefono);
     return conductor;
+}
+
+// Helpers de estado de taxis
+
+bool taxiEstaEnCola(const Cola &cola, int indiceTaxi) {
+    for (int i = 0; i < cola.tam; ++i) {
+        if (cola.indices[i] == indiceTaxi) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool taxiEstaEnRuta(int indiceTaxi) {
+    return taxiEstaEnCola(colaRutaEjecutivo, indiceTaxi)
+        || taxiEstaEnCola(colaRutaTradicional, indiceTaxi);
 }
 
 // Implementacion de funciones adicionales
 
 void opcionAgregarTaxi() {
     if (totalTaxis >= MAX_TAXIS) {
-        cout << "Limite maximo de taxis alcanzado." << endl;
+        cout << "Limite maximo de True drives alcanzado." << endl;
         return;
     }
 
     Taxi nuevo;
     nuevo.idCorrelativo = totalTaxis + 1;
 
-    cout << "\n === Registro de Nuevo Taxi ===" << endl;
+    cout << "\n=== Registro de Nuevo True drive ===" << endl;
 
     // datos unicos con helper generico
 
-    nuevo.placa = leerDatoUnico("Placa del Taxi", placaDuplicada);
+    nuevo.placa = leerDatoUnico("Placa del True drive", placaDuplicada);
     nuevo.numeroMotor = leerDatoUnico("Numero de Motor", motorDuplicado);
 
-    cout << "Modelo del Taxi: ";
+    cout << "Modelo del True drive: ";
     getline(cin, nuevo.modelo);
 
     nuevo.anio = leerAnoValido();
     nuevo.categoria = determinarCategoria(nuevo.anio);
 
-    //datos del conductor
+    // datos del conductor
     nuevo.conductor = leerDatosConductor();
 
     // guardar en el array
@@ -246,22 +260,23 @@ void opcionAgregarTaxi() {
     totalTaxis++;
 
     // encolar segun categoria
-    if (nuevo.categoria == "Ejecutivo") {
+    if (nuevo.categoria == "Ejecutiva") {
         encolar(colaEsperaEjecutivo, indice);
     } else {
         encolar(colaEsperaTradicional, indice);
     }
 
-    cout << "\nTaxi registrado y agregado a la cola de espera correctamente (" << nuevo.categoria << ")." << endl;
+        cout << "\nTrue drive registrado y agregado a la cola de espera correctamente ("
+            << nuevo.categoria << ")." << endl;
 }
 
 void opcionVerDatos() {
     if (totalTaxis == 0) {
-        cout << "No hay taxis registrados." << endl;
+        cout << "No hay True drives registrados." << endl;
         return;
     }
 
-    cout << "Lista de taxis registrados:" << endl;
+    cout << "Lista de True drives registrados:" << endl;
     for (int i = 0; i < totalTaxis; ++i) {
         const Taxi &t = taxis[i];
 
@@ -280,14 +295,14 @@ void opcionVerDatos() {
 }
 
 void opcionEnviarTaxiCliente() {
-    cout << "\n=== Enviar taxi a cliente ===" << endl;
+    cout << "\n=== Enviar True drive a cliente ===" << endl;
 
     string categoria = leerCategoriaCliente();
 
     Cola *colaEspera;
     Cola *colaRuta;
 
-    if (categoria == "Ejecutivo") {
+    if (categoria == "Ejecutiva") {
         colaEspera = &colaEsperaEjecutivo;
         colaRuta   = &colaRutaEjecutivo;
     } else {
@@ -296,13 +311,13 @@ void opcionEnviarTaxiCliente() {
     }
 
     if (colaVacia(*colaEspera)) {
-        cout << "No hay taxis disponibles en la categoria " << categoria << "." << endl;
+        cout << "No hay True drives disponibles en la categoria " << categoria << "." << endl;
         return;
     }
 
     int indiceTaxi = desencolar(*colaEspera);
     if (indiceTaxi == -1) {
-        cout << "Error interno al obtener taxi de la cola." << endl;
+        cout << "Error interno al obtener True drive de la cola." << endl;
         return;
     }
 
@@ -327,7 +342,7 @@ void opcionEnviarTaxiCliente() {
     ingresosTotales += costo;
     viajesTotales++;
 
-    if (categoria == "Ejecutivo") {
+    if (categoria == "Ejecutiva") {
         ingresosEjecutivo += costo;
         viajesEjecutivo++;
     } else {
@@ -336,7 +351,7 @@ void opcionEnviarTaxiCliente() {
     }
 
     Taxi &t = taxis[indiceTaxi];
-    cout << "\nTaxi enviado:" << endl;
+    cout << "\nTrue drive enviado:" << endl;
     cout << "ID: " << t.idCorrelativo
          << " | Placa: " << t.placa
          << " | Categoria: " << t.categoria
@@ -345,11 +360,11 @@ void opcionEnviarTaxiCliente() {
 }
 
 void opcionVerTaxisEnRuta() {
-    cout << "\n=== Taxis en ruta ===" << endl;
+    cout << "\n=== True drives en ruta ===" << endl;
 
-    cout << "\nCategoria Ejecutivo:" << endl;
+    cout << "\nCategoria Ejecutiva:" << endl;
     if (colaVacia(colaRutaEjecutivo)) {
-        cout << "  No hay taxis ejecutivos en ruta." << endl;
+        cout << "  No hay True drives ejecutivos en ruta." << endl;
     } else {
         for (int i = 0; i < colaRutaEjecutivo.tam; ++i) {
             int idx = colaRutaEjecutivo.indices[i];
@@ -364,7 +379,7 @@ void opcionVerTaxisEnRuta() {
 
     cout << "\nCategoria Tradicional:" << endl;
     if (colaVacia(colaRutaTradicional)) {
-        cout << "  No hay taxis tradicionales en ruta." << endl;
+        cout << "  No hay True drives tradicionales en ruta." << endl;
     } else {
         for (int i = 0; i < colaRutaTradicional.tam; ++i) {
             int idx = colaRutaTradicional.indices[i];
@@ -379,14 +394,14 @@ void opcionVerTaxisEnRuta() {
 }
 
 void opcionReinsertarTaxiEnCola() {
-    cout << "\n=== Reinsertar taxi a cola de espera ===" << endl;
+    cout << "\n=== Reinsertar True drive a cola de espera ===" << endl;
 
     string categoria = leerCategoriaCliente();
 
     Cola *colaEspera;
     Cola *colaRuta;
 
-    if (categoria == "Ejecutivo") {
+    if (categoria == "Ejecutiva") {
         colaEspera = &colaEsperaEjecutivo;
         colaRuta   = &colaRutaEjecutivo;
     } else {
@@ -395,11 +410,10 @@ void opcionReinsertarTaxiEnCola() {
     }
 
     if (colaVacia(*colaRuta)) {
-        cout << "No hay taxis en ruta para la categoria " << categoria << "." << endl;
+        cout << "No hay True drives en ruta para la categoria " << categoria << "." << endl;
         return;
     }
-
-    cout << "Taxis en ruta en categoria " << categoria << ":" << endl;
+    cout << "True drives en ruta en categoria " << categoria << ":" << endl;
     for (int i = 0; i < colaRuta->tam; ++i) {
         int idx = colaRuta->indices[i];
         const Taxi &t = taxis[idx];
@@ -410,11 +424,12 @@ void opcionReinsertarTaxiEnCola() {
     }
 
     int opcion;
-    cout << "Seleccione el numero de taxi a reinsertar: ";
+    cout << "Seleccione el numero de True drive a reinsertar: ";
     while (!(cin >> opcion) || opcion < 1 || opcion > colaRuta->tam) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Opcion invalida. Seleccione un numero entre 1 y " << colaRuta->tam << ": ";
+        cout << "Opcion invalida. Seleccione un numero entre 1 y "
+             << colaRuta->tam << ": ";
     }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -428,7 +443,8 @@ void opcionReinsertarTaxiEnCola() {
 
     encolar(*colaEspera, indiceTaxi);
 
-    cout << "Taxi reintegrado a la cola de espera de la categoria " << categoria << "." << endl;
+        cout << "True drive reintegrado a la cola de espera de la categoria "
+            << categoria << "." << endl;
 }
 
 // Helpers de reportes
@@ -449,14 +465,14 @@ void reporteTotalIngresos() {
 
 void reporteIngresosPorCategoria() {
     cout << "\n[Reporte] Ingresos por categoria" << endl;
-    cout << "Ingresos categoria Ejecutivo: " << ingresosEjecutivo << endl;
+    cout << "Ingresos categoria Ejecutiva: " << ingresosEjecutivo << endl;
     cout << "Ingresos categoria Tradicional: " << ingresosTradicional << endl;
 }
 
 void reporteViajesPorCategoria() {
     cout << "\n[Reporte] Viajes totales y por categoria" << endl;
     cout << "Viajes totales: " << viajesTotales << endl;
-    cout << "Viajes categoria Ejecutivo: " << viajesEjecutivo << endl;
+    cout << "Viajes categoria Ejecutiva: " << viajesEjecutivo << endl;
     cout << "Viajes categoria Tradicional: " << viajesTradicional << endl;
 }
 
@@ -490,11 +506,11 @@ void opcionVerReportes() {
 
 void mostrarMenu() {
     cout << "\n--- Sistema de Gestion TRUE DRIVE ---" << endl;
-    cout << "1. Agregar Taxi" << endl;
-    cout << "2. Ver Datos de Taxis" << endl;
-    cout << "3. Enviar Taxi a Cliente" << endl;
-    cout << "4. Ver Taxis en Ruta" << endl;
-    cout << "5. Reinsertar Taxi en Cola de Espera" << endl;
+    cout << "1. Agregar True drive" << endl;
+    cout << "2. Ver Datos de True drives" << endl;
+    cout << "3. Enviar True drive a Cliente" << endl;
+    cout << "4. Ver True drives en Ruta" << endl;
+    cout << "5. Reinsertar True drive en Cola de Espera" << endl;
     cout << "6. Ver Reportes" << endl;
     cout << "7. Salir" << endl;
     cout << "Seleccione una opcion: ";
