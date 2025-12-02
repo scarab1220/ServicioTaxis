@@ -71,6 +71,22 @@ bool encolar(Cola &cola, int indiceTaxi) {
     return true;
 }
 
+bool taxiEstaEnCola(const Cola &cola, int indiceTaxi) {
+    for (int i = 0; i < cola.tam; ++i) {
+        if (cola.indices[i] == indiceTaxi) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool taxiEstaEnRuta(int indiceTaxi) {
+    return taxiEstaEnCola(colaRutaEjecutivo, indiceTaxi)
+        || taxiEstaEnCola(colaRutaTradicional, indiceTaxi);
+}
+
+
+
 int desencolar(Cola &cola) {
     if (colaVacia(cola)) return -1; // Cola vacía
     int primero = cola.indices[0];
@@ -91,7 +107,6 @@ void opcionEnviarTaxiCliente();
 void opcionVerTaxisEnRuta();
 void opcionReinsertarTaxiEnCola();
 void opcionVerReportes();
-
 
 // Funciones para verificar duplicados
 
@@ -147,7 +162,7 @@ int leerAnoValido() {
             cout << "Entrada invalida. Intente nuevamente." << endl;
             continue;
         }
-        cin.ignore(); // Limpiar el buffer de entrada
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el resto de la linea
         if (anio < 2010) {
             cout << "Año invalido. Debe ser 2010 o posterior." << endl;
         } else {
@@ -182,7 +197,6 @@ string leerCategoriaCliente() {
         cout << "Opcion invalida. Intente nuevamente." << endl;
     }
 }
-
 
 Conductor leerDatosConductor() {
     Conductor conductor;
@@ -246,15 +260,20 @@ void opcionVerDatos() {
         cout << "No hay taxis registrados." << endl;
         return;
     }
+
     cout << "Lista de taxis registrados:" << endl;
     for (int i = 0; i < totalTaxis; ++i) {
         const Taxi &t = taxis[i];
+
+        string estado = taxiEstaEnRuta(i) ? "En ruta" : "En espera";
+
         cout << "ID: " << t.idCorrelativo
              << " | Placa: " << t.placa
              << " | Motor: " << t.numeroMotor
              << " | Modelo: " << t.modelo
              << " | Año: " << t.anio
              << " | Categoria: " << t.categoria
+             << " | Estado: " << estado
              << " | Conductor: " << t.conductor.nombre << " " << t.conductor.apellido
              << endl;
     }
@@ -359,7 +378,6 @@ void opcionVerTaxisEnRuta() {
     }
 }
 
-
 void opcionReinsertarTaxiEnCola() {
     cout << "\n=== Reinsertar taxi a cola de espera ===" << endl;
 
@@ -413,18 +431,62 @@ void opcionReinsertarTaxiEnCola() {
     cout << "Taxi reintegrado a la cola de espera de la categoria " << categoria << "." << endl;
 }
 
+// Helpers de reportes
 
-void opcionVerReportes() {
-    cout << "\n=== Reportes ===" << endl;
+void mostrarMenuReportes() {
+    cout << "\n=== Menu de reportes ===" << endl;
+    cout << "1. Ver total de ingresos" << endl;
+    cout << "2. Ver total de ingresos por categoria" << endl;
+    cout << "3. Ver total de viajes y por categoria" << endl;
+    cout << "4. Volver al menu principal" << endl;
+    cout << "Seleccione una opcion: ";
+}
 
+void reporteTotalIngresos() {
+    cout << "\n[Reporte] Total de ingresos" << endl;
     cout << "Ingresos totales: " << ingresosTotales << endl;
+}
+
+void reporteIngresosPorCategoria() {
+    cout << "\n[Reporte] Ingresos por categoria" << endl;
     cout << "Ingresos categoria Ejecutivo: " << ingresosEjecutivo << endl;
     cout << "Ingresos categoria Tradicional: " << ingresosTradicional << endl;
+}
+
+void reporteViajesPorCategoria() {
+    cout << "\n[Reporte] Viajes totales y por categoria" << endl;
     cout << "Viajes totales: " << viajesTotales << endl;
     cout << "Viajes categoria Ejecutivo: " << viajesEjecutivo << endl;
     cout << "Viajes categoria Tradicional: " << viajesTradicional << endl;
 }
 
+void opcionVerReportes() {
+    char opcion;
+
+    do {
+        mostrarMenuReportes();
+        cin >> opcion;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (opcion) {
+            case '1':
+                reporteTotalIngresos();
+                break;
+            case '2':
+                reporteIngresosPorCategoria();
+                break;
+            case '3':
+                reporteViajesPorCategoria();
+                break;
+            case '4':
+                cout << "Regresando al menu principal..." << endl;
+                break;
+            default:
+                cout << "Opcion invalida. Intente nuevamente." << endl;
+        }
+
+    } while (opcion != '4');
+}
 
 void mostrarMenu() {
     cout << "\n--- Sistema de Gestion TRUE DRIVE ---" << endl;
@@ -437,7 +499,6 @@ void mostrarMenu() {
     cout << "7. Salir" << endl;
     cout << "Seleccione una opcion: ";
 }
-
 
 int main() {
     inicializarCola(colaEsperaEjecutivo);
